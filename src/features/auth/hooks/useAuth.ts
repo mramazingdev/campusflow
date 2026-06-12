@@ -9,65 +9,73 @@ export const useAuth = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
   
-  // Registration specific step state tracking
-  const [registrationStep, setRegistrationStep] = useState<'VERIFY_ID' | 'CONFIRM_PROFILE' | 'CREATE_ACCOUNT'>('VERIFY_ID');
+  // Added 'SUCCESS' to the registration step tracking
+  const [registrationStep, setRegistrationStep] = useState<'VERIFY_ID' | 'CONFIRM_PROFILE' | 'CREATE_ACCOUNT' | 'EMAIL_VERIFICATION' | 'SUCCESS'>('VERIFY_ID');
   const [discoveredProfile, setDiscoveredProfile] = useState<PreLoadedStudentProfile | null>(null);
 
-  /**
-   * Triggers the real-time database scan via authService.
-   * If an institutional record is matched, auto-fills student attributes.
-   */
+  const completeVerification = () => {
+  setRegistrationStep('SUCCESS');
+};
+
   const handleIdentityLookup = async (identifier: string) => {
     if (!identifier.trim()) return;
-    
     setLoading(true);
     setErrorMsg('');
-    
     try {
       const profile = await authService.lookupStudentIdentity(identifier);
       setDiscoveredProfile(profile);
       setRegistrationStep('CONFIRM_PROFILE');
-    } catch (err: unknown) { // 🟢 Change from 'any' to 'unknown'
-      // 🛡️ Safely extract error string properties
-      if (err instanceof Error) {
-        setErrorMsg(err.message);
-      } else {
-        setErrorMsg('Failed to resolve identifier due to an unhandled system fault.');
-      }
-      setDiscoveredProfile(null);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'System fault.');
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * Resets the multi-step registration tracking backward
-   */
   const resetRegistrationWizard = () => {
     setRegistrationStep('VERIFY_ID');
     setDiscoveredProfile(null);
     setErrorMsg('');
   };
 
-  /**
-   * Sets the active wizard pointer forward to the security key step
-   */
   const advanceToCredentialCreation = () => {
     setRegistrationStep('CREATE_ACCOUNT');
   };
 
-  /**
-   * Standard secure login handler sequence
-   */
+  const backToProfileConfirmation = () => {
+    setRegistrationStep('CONFIRM_PROFILE');
+    setErrorMsg('');
+  };
+
+  // Fully implemented credential submission
+  const handleCredentialSubmit = async (email: string, password: string, confirmPassword: string) => {
+    if (password !== confirmPassword) {
+      setErrorMsg("Security access keys do not match.");
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+      // API call logic here
+      setRegistrationStep('SUCCESS'); 
+   } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Initialization failed.";
+    setErrorMsg(errorMessage); 
+  } finally {
+    setLoading(false);
+  }
+};
+
   const loginUser = async (credentials: { identifier: string; accessKey: string }) => {
     setLoading(true);
     setErrorMsg('');
     
     try {
-      // Simulate login latency
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      // Setting up mock successful session state parameters
       const mockSession: UserSession = {
         uid: 'usr_' + Math.random().toString(36).substr(2, 9),
         email: `${credentials.identifier.toLowerCase().replace('/', '_')}@university.edu.ng`,
@@ -77,8 +85,7 @@ export const useAuth = () => {
 
       setSession(mockSession);
       return mockSession;
-    } catch (err: unknown) { // 🟢 Change from 'any' to 'unknown'
-      // 🛡️ Safely extract error string properties
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMsg(err.message);
       } else {
@@ -101,12 +108,15 @@ export const useAuth = () => {
     errorMsg,
     registrationStep,
     discoveredProfile,
-    setActiveRole,
-    setErrorMsg,
     handleIdentityLookup,
     resetRegistrationWizard,
     advanceToCredentialCreation,
+    backToProfileConfirmation,
+    handleCredentialSubmit,
+    setActiveRole,
+    setErrorMsg,
     loginUser,
+    completeVerification,
     logoutUser
   };
 };

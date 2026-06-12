@@ -2,8 +2,7 @@
 'use client';
 
 import React from 'react';
-// 1. Import the new layout instead of AuthCard
-import  AuthLayout  from '@/app/layouts/AuthLayout'; 
+import  AuthLayout  from '../components/AuthLayout'; 
 import { LoginForm } from '../components/LoginForm';
 
 export default function LoginPage() {

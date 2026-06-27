@@ -1,24 +1,28 @@
-// src/features/dashboard/hooks/useStudentDashboard.ts
-import { useState, useEffect } from 'react';
-import { dashboardService } from '../services/dashboard.service';
+import { useEffect, useState } from "react";
+import { dashboardService } from "../services/dashboard.service";
+import type { DashboardData } from "../types/dashboard.types";
 
 export const useStudentDashboard = () => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
       try {
         const result = await dashboardService.getDashboardData();
         setData(result);
-      } catch (err) {
-        console.error("Failed to load dashboard", err);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchDashboard();
   }, []);
 
-  return { data, loading };
+  return {
+    data,
+    loading,
+  };
 };

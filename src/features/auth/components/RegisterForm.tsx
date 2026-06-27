@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   Loader2,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const RegisterForm: React.FC = () => {
   const {
@@ -370,14 +371,21 @@ export const RegisterForm: React.FC = () => {
           <div className="flex justify-center">
             <CheckCircle2 className="w-16 h-16 text-emerald-500" />
           </div>
-          <h2 className="text-xl font-bold ...">Account Initialized</h2>
-          <p>
+          <h2 className="text-xl font-bold font-serif text-slate-900 dark:text-white uppercase tracking-tight">
+            Account Initialized
+          </h2>
+          <p className="text-xs text-slate-400 font-normal">
             Your profile has been successfully activated. You may now proceed to
             the student portal.
           </p>
-          <a href="/dashboard" className="...">
+
+          {/* 3. Use the Link component for internal navigation */}
+          <Link
+            to="/dashboard"
+            className="block w-full h-12 bg-slate-950 text-white rounded-xl flex items-center justify-center font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+          >
             Go To Dashboard
-          </a>
+          </Link>
         </div>
       )}
     </div>
